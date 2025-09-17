@@ -1,23 +1,141 @@
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  padding: 50px;
-  background-color: #f9f9f9;
+:root{
+  --bg:#0b1220;
+  --panel:#0f1724;
+  --accent:#64ffda;
+  --muted:#9aa8bf;
+  --btn:#ff6b6b;
 }
 
-h1 {
-  color: #2c3e50;
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(100,255,218,0.04), transparent),
+              radial-gradient(800px 400px at 90% 90%, rgba(255,107,107,0.03), transparent),
+              var(--bg);
+  color:#e6eef8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
 }
 
-button {
-  background-color: #3498db;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+/* container */
+.container{
+  width:100%;
+  max-width:760px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.04);
+  padding:28px;
+  border-radius:12px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
 }
 
-button:hover {
-  background-color: #2980b9;
+/* pixel title */
+.title{
+  font-family: 'Press Start 2P', monospace;
+  letter-spacing:2px;
+  color:var(--accent);
+  text-align:center;
+  margin:0 0 18px 0;
+  font-size:22px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.6), 0 4px 18px rgba(0,0,0,0.5);
+}
+
+/* slot visual */
+.slot-area{
+  display:grid;
+  gap:14px;
+  justify-items:center;
+}
+
+.slot{
+  width:320px;
+  height:160px;
+  background:linear-gradient(180deg,#091022, #0c1726);
+  border:4px solid rgba(255,255,255,0.04);
+  border-radius:8px;
+  position:relative;
+  overflow:hidden;
+  box-shadow: inset 0 -6px 24px rgba(0,0,0,0.6);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding-bottom:12px;
+}
+
+/* the sliding door */
+.door{
+  width:260px;
+  height:64px;
+  background:linear-gradient(180deg,#2b2f3a,#11141a);
+  border-radius:6px;
+  border:3px solid rgba(0,0,0,0.6);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 2px 0 rgba(255,255,255,0.02);
+  transform: translateY(0); /* 0 = closed */
+  transition: transform 700ms cubic-bezier(.2,.9,.3,1);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  font-family: 'Press Start 2P', monospace;
+  color:var(--muted);
+}
+
+/* open state moves door upward */
+.slot.open .door{
+  transform: translateY(-120px);
+  color:var(--accent);
+}
+
+/* status row */
+.status-row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+}
+
+.status{
+  padding:8px 12px;
+  border-radius:8px;
+  font-size:13px;
+  background: rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.02);
+}
+
+.status.open{ color:#0b3; border-color: rgba(11,255,51,0.12); background: rgba(11,255,51,0.03) }
+.status.closed{ color:#ff7b7b; border-color: rgba(255,123,123,0.12); background: rgba(255,107,107,0.03) }
+.status.unknown{ color:var(--muted); }
+
+/* button */
+.controls{ display:flex; gap:10px; justify-content:center; width:100% }
+.btn{
+  font-family: 'Press Start 2P', monospace;
+  background: linear-gradient(180deg,var(--btn), #e94b4b);
+  border:none;
+  padding:14px 22px;
+  border-radius:12px;
+  cursor:pointer;
+  color:white;
+  font-size:11px;
+  letter-spacing:1px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.5);
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+.btn:active{ transform: translateY(2px) }
+.btn[disabled]{ opacity:0.6; cursor:not-allowed }
+
+/* notes */
+.note{ text-align:center; color:var(--muted); font-size:13px; margin:8px 0 0 0 }
+.warn{ text-align:center; color:#f3b1b1; font-size:12px; margin-top:6px }
+
+/* responsive */
+@media (max-width:420px){
+  .slot{ width:100%; height:140px }
+  .door{ width:84% }
+  .title{ font-size:16px }
 }
