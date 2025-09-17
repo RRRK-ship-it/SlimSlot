@@ -2,7 +2,7 @@
 console.log("Script geladen"); // debug log
 const CONFIG = {
   AUTH_TOKEN: "b8udPRgwzHSE8hubkPcfOqro0zu1pjdK", // bv. "bLynK-abc123..."
-  PIN: "V0", // virtuele pin of fysieke pin die jouw SlimSlot bestuurt
+  PIN: "V0", // virtuele pin die jouw SlimSlot bestuurt
   BLYNK_BASE: "https://blynk.cloud/external/api"
 };
 
@@ -66,9 +66,22 @@ async function blynkGetPin() {
   console.log("GET URL:", url);
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const arr = await res.json(); // Blynk returns an array of values
-  console.log("Blynk GET response:", arr);
-  return arr[0];
+  const data = await res.json();
+  console.log("Blynk GET response:", data);
+
+  // FIX: controleer of response een array is of direct een waarde
+  let value;
+  if (Array.isArray(data)) {
+    value = parseInt(data[0]);
+  } else {
+    value = parseInt(data);
+  }
+
+  if (isNaN(value)) {
+    console.warn("Blynk GET waarde is geen nummer:", data);
+    return null;
+  }
+  return value;
 }
 
 async function blynkSetPin(value) {
@@ -88,13 +101,11 @@ async function refreshState() {
   console.log("refreshState aangeroepen");
   try {
     setBusy(true);
-    const val = await blynkGetPin(); // verwacht meestal "0" of "1"
-    const numeric = parseInt(val);
-    if (isNaN(numeric)) {
-      console.warn("Waarde van Blynk is geen nummer:", val);
+    const val = await blynkGetPin(); // verwacht meestal 0 of 1
+    if (val === null) {
       setUIState(null);
     } else {
-      setUIState(numeric === 1);
+      setUIState(val === 1);
     }
   } catch (err) {
     console.error("Fout bij ophalen status:", err);
@@ -109,7 +120,7 @@ async function toggleSlot() {
   if (busy) return;
   setBusy(true);
   try {
-    const newState = !(currentState === true); // if unknown -> attempt to open
+    const newState = !(currentState === true); // if unknown -> probeer openen
     await blynkSetPin(newState ? 1 : 0);
     setUIState(newState);
     setTimeout(refreshState, 800);
