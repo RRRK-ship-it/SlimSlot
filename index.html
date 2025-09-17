@@ -1,15 +1,42 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mijn eerste GitHub website</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SlimSlot</title>
+
+  <!-- Pixel font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Welkom op mijn GitHub Pages website!</h1>
-  <p>Dit is een testpagina die je via GitHub Pages kunt hosten.</p>
-  <button onclick="sayHello()">Klik op mij</button>
+  <main class="container">
+    <h1 class="title">SlimSlot</h1>
+
+    <section class="slot-area" aria-live="polite">
+      <div id="slot" class="slot">
+        <div class="door"></div>
+      </div>
+
+      <div class="status-row">
+        <div id="status" class="status unknown">Status: onbekend</div>
+        <div id="lastUpdated" class="updated"></div>
+      </div>
+
+      <div class="controls">
+        <button id="toggleBtn" class="btn" aria-pressed="false">Laden...</button>
+      </div>
+
+      <p class="note">
+        Tip: gebruik de knop om het slot <strong>open</strong> of <strong>dicht</strong> te zetten.
+      </p>
+
+      <p class="warn">
+        <strong>Veiligheid:</strong> Plaats je Blynk token niet in publiek gedeelde code. Zie de instructies hieronder.
+      </p>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>
