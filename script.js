@@ -6,7 +6,7 @@
 
 const CONFIG = {
   AUTH_TOKEN: "b8udPRgwzHSE8hubkPcfOqro0zu1pjdK", // bv. "bLynK-abc123..."
-  PIN: "V3", // virtuele pin of fysieke pin die jouw SlimSlot bestuurt
+  PIN: "V0", // virtuele pin of fysieke pin die jouw SlimSlot bestuurt
   BLYNK_BASE: "https://blynk.cloud/external/api"
 };
 
