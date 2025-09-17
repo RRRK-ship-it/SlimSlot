@@ -1,9 +1,5 @@
 // --- CONFIG ---
-// Vervang de waarden hieronder door jouw Blynk gegevens.
-// **WAARSCHUWING**: als je deze file met echte token naar een openbare GitHub repo pusht,
-// is je token zichtbaar voor iedereen. Gebruik dit alleen voor testen of lokaal.
-// Voor productie: maak een veilige proxy / serverless functie om token te beschermen.
-
+console.log("Script geladen"); // debug log
 const CONFIG = {
   AUTH_TOKEN: "b8udPRgwzHSE8hubkPcfOqro0zu1pjdK", // bv. "bLynK-abc123..."
   PIN: "V0", // virtuele pin of fysieke pin die jouw SlimSlot bestuurt
@@ -11,11 +7,18 @@ const CONFIG = {
 };
 
 // --- UI references ---
+console.log("DOM elements ophalen...");
 const slotEl = document.getElementById("slot");
 const doorEl = document.querySelector(".door");
 const statusEl = document.getElementById("status");
 const toggleBtn = document.getElementById("toggleBtn");
 const lastUpdatedEl = document.getElementById("lastUpdated");
+
+if(!slotEl || !doorEl || !statusEl || !toggleBtn || !lastUpdatedEl){
+  console.error("Een of meerdere DOM elementen ontbreken!");
+} else {
+  console.log("Alle DOM elementen gevonden");
+}
 
 // state: true = open, false = closed, null = unknown
 let currentState = null;
@@ -25,7 +28,7 @@ let pollInterval = null;
 /* ---------- helper functions ---------- */
 
 function setUIState(state) {
-  // state: true=open, false=closed, null=unknown
+  console.log("setUIState aangeroepen met state:", state);
   currentState = state;
   slotEl.classList.toggle("open", state === true);
   toggleBtn.disabled = false;
@@ -49,6 +52,7 @@ function setUIState(state) {
 }
 
 function setBusy(on = true) {
+  console.log("setBusy:", on);
   busy = on;
   toggleBtn.disabled = on;
   toggleBtn.textContent = on ? "Laden..." : (currentState ? "Sluit SlimSlot" : "Open SlimSlot");
@@ -57,31 +61,37 @@ function setBusy(on = true) {
 /* ---------- Blynk API calls ---------- */
 
 async function blynkGetPin() {
-  // GET current value: /get?token=...&V1
+  console.log("blynkGetPin aangeroepen");
   const url = `${CONFIG.BLYNK_BASE}/get?token=${encodeURIComponent(CONFIG.AUTH_TOKEN)}&${encodeURIComponent(CONFIG.PIN)}`;
+  console.log("GET URL:", url);
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const arr = await res.json(); // Blynk returns an array of values
+  console.log("Blynk GET response:", arr);
   return arr[0];
 }
 
 async function blynkSetPin(value) {
-  // Update pin: /update?token=...&V1=1  (or value)
+  console.log("blynkSetPin aangeroepen met value:", value);
   const url = `${CONFIG.BLYNK_BASE}/update?token=${encodeURIComponent(CONFIG.AUTH_TOKEN)}&${encodeURIComponent(CONFIG.PIN)}=${encodeURIComponent(value)}`;
+  console.log("UPDATE URL:", url);
   const res = await fetch(url, { method: "GET" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const text = await res.text();
+  console.log("Blynk UPDATE response:", text);
   return text;
 }
 
 /* ---------- actions ---------- */
 
 async function refreshState() {
+  console.log("refreshState aangeroepen");
   try {
     setBusy(true);
     const val = await blynkGetPin(); // verwacht meestal "0" of "1"
     const numeric = parseInt(val);
     if (isNaN(numeric)) {
+      console.warn("Waarde van Blynk is geen nummer:", val);
       setUIState(null);
     } else {
       setUIState(numeric === 1);
@@ -95,21 +105,18 @@ async function refreshState() {
 }
 
 async function toggleSlot() {
+  console.log("toggleSlot aangeroepen, huidige state:", currentState);
   if (busy) return;
   setBusy(true);
   try {
     const newState = !(currentState === true); // if unknown -> attempt to open
-    // send 1 for open, 0 for closed
     await blynkSetPin(newState ? 1 : 0);
-    // optimistisch update UI (maar we will re-fetch)
     setUIState(newState);
-    // small delay then poll to confirm
     setTimeout(refreshState, 800);
   } catch (err) {
     console.error("Fout bij togglen:", err);
     alert("Fout bij communiceren met Blynk. Controleer token en internetverbinding.");
     setBusy(false);
-    // show unknown
     setUIState(null);
   }
 }
@@ -117,12 +124,10 @@ async function toggleSlot() {
 /* ---------- init ---------- */
 
 function init() {
-  // bind
+  console.log("init aangeroepen");
   toggleBtn.addEventListener("click", toggleSlot);
 
-  // basic validation for config
   if (!CONFIG.AUTH_TOKEN || CONFIG.AUTH_TOKEN.includes("REPLACE_WITH")) {
-    // Warn but still initialize UI for testing
     setUIState(null);
     toggleBtn.textContent = "Vul Blynk token in script.js";
     toggleBtn.disabled = true;
@@ -130,12 +135,11 @@ function init() {
     return;
   }
 
-  // initial fetch
   refreshState();
-
-  // poll every 6 seconden to keep UI in sync (aanpasbaar)
   pollInterval = setInterval(refreshState, 6000);
 }
 
-// start
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM Content Loaded");
+  init();
+});
